@@ -1,0 +1,125 @@
+<head>
+	<title><%= page ==='signup' ? 'Sign Up' : 'Log In' %> - <%= siteName %></title>
+	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
+	<meta name="description" content="<%= page ==='signup' ? 'Sign Up' : 'Log In' %> to <%= siteName %>.">
+	<link rel="icon" type="image/png" href="/favicon.png" />
+	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
+	
+	<style>
+		body {
+			margin: 0;
+			font-family: <%= locals.fontFamily || 'sans-serif' %>;
+		}
+
+		.login {
+			max-width: 350px;
+			margin: auto;
+			padding: 20px 50px;
+			margin-bottom: 50px;
+		}
+
+		.login h1 {
+			margin: 10px 0;
+		}
+
+		.header {
+			text-align: center;
+			margin: 90px auto 70px auto;
+		}
+
+		.header h1 {
+			margin-bottom: 30px;
+		}
+
+		.header img {
+			height: 80px;
+		}
+
+		input:not([type='radio']),
+		button,
+		#cardElement,
+		.btn {
+			width: 100%;
+			padding: 6px;
+			margin: 5px 0 15px 0;
+			box-sizing: border-box;
+			border-radius: 4px;
+			font-size: 18px;
+			border: 1px solid #ccc;
+		}
+
+		.btn {
+			background: <%= primaryColor %>;
+			border: 2px solid <%= primaryColor %>;
+			box-shadow: 1px 0px 9px 0px rgba(0, 0, 0, 0.31);
+			color: #fff;
+			cursor: pointer;
+			padding: 8px 0 !important;
+			font-size: 17px !important;
+			text-align: center;
+			transition: 0.5s all;
+			text-decoration: none;
+			display: inline-block;
+		}
+
+		.btn:hover {
+			opacity: 0.8;
+		}
+
+		.error {
+			color: #ff4747;
+			font-weight: bold;
+		}
+
+	</style>
+</head>
+<body>
+	<div class='header'>
+		<a href='/'><img src='<%= logoUrl %>'/></a>
+		<% if (page == 'signup') { %>
+			<h1>Sign Up</h1>
+		<% } else { %>
+			<h1>Log In</h1>
+		<% } %>
+	</div>
+
+	<div class='login'>
+		
+		<p><span class='error'><%= message %></span></p>
+
+		<form id='form' action="/<%= page %>" method="post">
+			
+			<label>Email</label>
+			<input name="email" type="email" placeholder="Enter email">
+
+			<label>Password</label>
+			<input name="password" type="password" placeholder="Password">
+
+			<% if (page === 'signup') { %>
+				
+				<input type='submit' class='btn' id='payButton' value="Sign Up"/>
+
+				<p><small>or</small></p>
+
+				<a href='/auth/github' class='btn'>Sign Up with Github</a>
+
+			<% } else { %>
+
+				<input type='submit' class='btn' value="Log In" />
+
+				<p><small>or</small></p>
+
+				<a href='/auth/github' class='btn'>Log In with Github</a>
+			
+			<% } %>
+
+		</form>
+
+		<% if (page === 'signup') { %>
+			<p><small>Already have an account? <a href="/login">Log in</a></small></p>
+		<% } else { %>
+			<p><small>Don't have an account? <a href="/signup">Sign up now</a></small></p>
+		<% } %>
+	</div>
+	
+</body>

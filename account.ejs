@@ -1,0 +1,48 @@
+<p>Logged as <b><%= user.email %></b> <%= user.github && user.github.id ? ' (connected to GitHub)' : '' %>  <%= user.google && user.google.id ? ' (connected to Google)' : '' %></p>
+
+<% if (user.useAccessToken) { %>
+	<p>API access token: <b><%= user.accessToken %></b> - <a onclick="return confirm('Are you sure? It will make the current access token obsolete.')" href='/account/accessToken'>reset</a> (this will make the current obsolete) <br>
+	<small>You must keep your access token private. It will allow you to authenticate your API requests.</small>
+	</p>
+<% } %>
+
+<a href='/logout' class="btn btn-danger">Log out</a>
+<br>
+<br>
+<p><a href='javascript:' data-toggle="modal" data-target="#passwordModal">Change password</a></p>
+
+<div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-hidden="true">
+	<div class="modal-dialog modal-dialog-centered" role="document">
+		<div class="modal-content">
+			<div class="modal-header">
+				
+				<h5 class="modal-title">Change your password</h5>
+				
+				<button type="button" class="close" data-dismiss="modal" aria-label="Close">
+					<span aria-hidden="true">&times;</span>
+				</button>
+
+			</div>
+			<form id='passwordForm'>
+				<div class="modal-body">
+					<div class="container-fluid">
+						<label>Current password</label><br>
+						<input class='form-control' type='password' name='old' placeholder="*********"/>
+						<br>
+						<label>New password</label><br>
+						<input class='form-control' type='password' name='new' placeholder="*********"/>
+						<br>
+						<label>Confirm</label><br>
+						<input class='form-control' type='password' name='confirm' placeholder="*********"/>
+					</div>
+				</div>
+				<div class="modal-footer">
+					<button type="submit" class="btn btn-warning">
+						<span style='display:none' class="spinner-border spinner-border-sm"></span>
+						<span>Change password</span>
+					</button>
+				</div>
+			</form>
+		</div>
+	</div>
+</div>

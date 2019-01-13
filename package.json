@@ -1,11 +1,22 @@
 {
   "name": "express-account-pages",
   "version": "0.1.0",
-  "description": "A simple middleware for Express of abstraction on top of Passport",
+  "description": "A simple user middleware of abstraction for Express on top of Passport",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "",
-  "license": "ISC"
+  "author": "Vincent L",
+  "license": "MIT",
+  "dependencies": {
+    "bcrypt-nodejs": "0.0.3",
+    "connect-flash": "^0.1.1",
+    "connect-mongo": "^2.0.3",
+    "cookie-parser": "^1.4.3",
+    "express-session": "^1.15.6",
+    "passport": "^0.4.0",
+    "passport-github": "^1.1.0",
+    "passport-local": "^1.0.0",
+    "stripe": "^6.20.0"
+  }
 }
