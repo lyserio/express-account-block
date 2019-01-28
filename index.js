@@ -179,11 +179,11 @@ module.exports = (app, opts) => {
 	app.use(passport.initialize())
 	app.use(passport.session()) // persistent login sessions
 
-	app.post('/login', passport.authenticate('local-login', { successRedirect: '/account', failureRedirect: '/login', failureFlash: true }) )
-	app.post('/signup', passport.authenticate('local-signup', { successRedirect : '/app', failureRedirect : '/signup', failureFlash : true }))
+	app.post('/login', passport.authenticate('local-login', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash: true }) )
+	app.post('/signup', passport.authenticate('local-signup', { successRedirect : options.redirectSignup, failureRedirect : '/signup', failureFlash : true }))
 
 	app.get('/auth/github', passport.authenticate('github'))
-	app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: '/account', failureRedirect: '/login', failureFlash : true  }))
+	app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
 
 	app.get('/signup', (req, res) => {
 		res.render(__dirname+'/login', { 
