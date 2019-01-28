@@ -133,7 +133,7 @@ module.exports = (app, opts) => {
 	if (opts) options = opts
 
 
-	if (options.connectors.github) {
+	if (options.connectors && options.connectors.github) {
 		passport.use(new GitHubStrategy({
 				clientID: options.connectors.github.clientId,
 				clientSecret: options.connectors.github.clientSecret,
@@ -182,14 +182,19 @@ module.exports = (app, opts) => {
 	app.post('/login', passport.authenticate('local-login', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash: true }) )
 	app.post('/signup', passport.authenticate('local-signup', { successRedirect : options.redirectSignup, failureRedirect : '/signup', failureFlash : true }))
 
-	app.get('/auth/github', passport.authenticate('github'))
-	app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
+	if (options.connectors) {
+		if (options.connectors.github) {
+			app.get('/auth/github', passport.authenticate('github'))
+			app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
+		}
+	}
 
 	app.get('/signup', (req, res) => {
 		res.render(__dirname+'/login', { 
 			page: 'signup',
 			message: req.flash('error'),
 			logoUrl: options.logoUrl,
+			connectors: options.connectors,
 			siteName: options.siteName,
 			primaryColor: options.primaryColor
 		})
@@ -202,6 +207,7 @@ module.exports = (app, opts) => {
 			page: 'login',
 			message: req.flash('error'),
 			logoUrl: options.logoUrl,
+			connectors: options.connectors,
 			siteName: options.siteName,
 			primaryColor: options.primaryColor
 		})
