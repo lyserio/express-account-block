@@ -97,25 +97,22 @@
 
 			<% if (page === 'signup') { %>
 				
-				<input type='submit' class='btn' id='payButton' value="Sign Up"/>
-
-				<p><small>or</small></p>
-
-				<a href='/auth/github' class='btn'>Sign Up with Github</a>
+				<input type='submit' class='btn' value="Sign Up"/>
 
 			<% } else { %>
 
 				<input type='submit' class='btn' value="Log In" />
-
-				<% if (locals.connectors) { %>
-					<p><small>or</small></p>
-					
-					<% if (connectors.github) { %>
-						<a href='/auth/github' class='btn'>Log In with Github</a>
-					<% } %>
-				<% } %>
 			
 			<% } %>
+
+
+			<% if (locals.connectors) { %>
+				<p><small>or</small></p>
+				
+				<% if (connectors.github) { %>
+					<a href='/auth/github' class='btn'>Auth with Github</a>
+				<% } %>
+			<% } %>
 
 		</form>
 
