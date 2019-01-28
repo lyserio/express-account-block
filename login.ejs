@@ -75,7 +75,11 @@
 </head>
 <body>
 	<div class='header'>
-		<a href='/'><img src='<%= logoUrl %>'/></a>
+
+		<% if (locals.logoUrl) { %>
+			<a href='/'><img src='<%= logoUrl %>'/></a>
+		<% } %>
+		
 		<% if (page == 'signup') { %>
 			<h1>Sign Up</h1>
 		<% } else { %>

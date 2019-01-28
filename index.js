@@ -2,6 +2,7 @@ const session       = require('express-session')
 const flash         = require('connect-flash')
 const MongoStore    = require('connect-mongo')(session)
 const cookieParser  = require('cookie-parser')
+const bodyParser  	= require('body-parser')
 
 const crypto 		= require('crypto')
 const bcrypt 		= require('bcrypt-nodejs')
@@ -25,7 +26,7 @@ const createUser = async (profile, done) => {
 	
 	const user = await options.mongoUser.findOne({ 'email' :  profile.email }).exec()
 
-	if (user) return done(null, false, { message: 'That email is already registed! Try to login.' })
+	if (user) return done(null, false, { message: 'That email is already registered. Try to login.' })
 	
 	const timestamp = new Date().toISOString()
 	const accessToken =  (crypto.createHash('md5').update('s0m backryrde rSAlt'+profile.email+'j+333'+new Date()).digest("hex")).substring(0,20)
@@ -50,7 +51,7 @@ const createUser = async (profile, done) => {
 
 			newUser.stripe.customerId = customer.id
 		} catch (err) {
-			return done(null, false, { message: 'An error occured with your credit card: '+err.message+'. Please contact us or try again later.' })
+			return done(null, false, { message: `An error occured with your credit card: ${err.message}. Please contact us or try again later.` })
 		}
 	}
 
@@ -175,6 +176,10 @@ module.exports = (app, opts) => {
 
 	app.use(flash()) // error messages during login
 	app.use(cookieParser()) // read cookies
+
+	// get information from html forms and post payload
+	app.use(bodyParser.json()) 
+	app.use(bodyParser.urlencoded({ extended: true }))
 
 	app.use(passport.initialize())
 	app.use(passport.session()) // persistent login sessions

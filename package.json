@@ -1,6 +1,6 @@
 {
   "name": "express-account-pages",
-  "version": "0.2.2",
+  "version": "0.3.0",
   "description": "A simple user middleware of abstraction for Express on top of Passport",
   "main": "index.js",
   "scripts": {
@@ -10,6 +10,7 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
+    "body-parser": "^1.18.3",
     "connect-flash": "^0.1.1",
     "connect-mongo": "^2.0.3",
     "cookie-parser": "^1.4.3",
