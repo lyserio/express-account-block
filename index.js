@@ -11,8 +11,6 @@ const passport 		= require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
 
-const Stripe 		= require("stripe")
-
 let options = {}
 
 // Catching errors when using async functions
@@ -29,7 +27,7 @@ const createUser = async (profile, done) => {
 	if (user) return done(null, false, { message: 'That email is already registered. Try to login.' })
 	
 	const timestamp = new Date().toISOString()
-	const accessToken =  (crypto.createHash('md5').update('s0m backryrde rSAlt'+profile.email+'j+333'+new Date()).digest("hex")).substring(0,20)
+	const accessToken = generateAccessToken(profile.emai)
 
 	let newUser = new options.mongoUser({
 		email: profile.email,
@@ -38,46 +36,6 @@ const createUser = async (profile, done) => {
 		created: timestamp,
 		accessToken: accessToken
 	})
-
-	if (options.stripe) {
-		
-		let stripe = Stripe(options.stripe.secretKey)
-
-		try {
-			const customer = await stripe.customers.create({
-				email: profile.email,
-				source: profile.token
-			})
-
-			newUser.stripe.customerId = customer.id
-		} catch (err) {
-			return done(null, false, { message: `An error occured with your credit card: ${err.message}. Please contact us or try again later.` })
-		}
-	}
-
-
-	/*const subscription = await stripe.subscriptions.create({
-		customer: customer.id,
-		items: [{
-			plan: 'basic',
-			quantity: 0
-		},{
-			plan: 'hobby',
-			quantity: 0
-		}, {
-			plan: 'pro',
-			quantity: 0
-		}]
-	})
-
-
-	let subscriptionItems = subscription.items.data.map((item => {
-		return {
-			id: item.id,
-			plan: item.plan.id
-		}
-	}))*/
-
 
 	if (profile.provider === 'github') {
 		newUser.github = {
@@ -124,7 +82,6 @@ passport.use('local-signup', new LocalStrategy({
 			email: email,
 			password: password,
 			name: req.body.name,
-			token: req.body.stripeToken
 		}, done).catch(e => done(e))
 	}
 ))
@@ -207,7 +164,7 @@ module.exports = (app, opts) => {
 	})
 
 	app.get('/login', (req, res) => {
-		if (req.isAuthenticated()) return res.redirect('/account')
+		if (req.isAuthenticated()) return res.redirect(options.redirectLogin)
 
 		res.render(__dirname+'/login', {
 			page: 'login',
@@ -234,11 +191,11 @@ module.exports = (app, opts) => {
 
 		await user.save()
 
-		if (options.sendMail) {
-			options.sendMail(options.siteName+" - Access token renewed", `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
+		if (typeof options.sendMail === 'function') {
+			options.sendMail(`⚠️ ${options.siteName} - Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
 		}
 	
-		res.redirect('/account')
+		res.redirect(options.redirectLogin)
 
 	}))
 
@@ -257,12 +214,12 @@ module.exports = (app, opts) => {
 
 		if (!bcrypt.compareSync(oldPswd, user.pswd)) return next("Invalid password.")
 
-		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null);
+		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
 
 		await user.save()
 
-		if (options.sendMail) {
-			options.sendMail(options.siteName+" - Password updated", `Hello,\n\nWe inform you that you have successfully updated your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
+		if (typeof options.sendMail === 'function') {
+			options.sendMail(`⚠️ ${options.siteName} - Password updated`, `Hello,\n\nWe inform you that you have successfully updated your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
 		}
 
 		res.send({})

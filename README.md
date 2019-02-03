@@ -14,7 +14,6 @@ npm i express-account-pages
 - [ ] Google OAuth
 - [ ] Facebook OAuth
 - [ ] Better README
-- [ ] Upgrade plan direct on signup
 
 ## Usage
 
@@ -36,7 +35,8 @@ const db 			= require('./helpers/db')
 require('express-account-pages')(app, {
 	siteName: 'My Web App',
 	primaryColor: '#b90577',
-	fontFamily: 'Lato, Avenir, -apple-system, Roboto, Arial, sans-serif',
+	// background: 'red',
+	// logoUrl: '/favicon.png',
 	mongoose: mongoose,
 	redirectLogin: '/account',
 	redirectSignup: '/account',
