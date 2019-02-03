@@ -201,6 +201,7 @@ module.exports = (app, opts) => {
 			logoUrl: options.logoUrl,
 			connectors: options.connectors,
 			siteName: options.siteName,
+			background: options.background,
 			primaryColor: options.primaryColor
 		})
 	})

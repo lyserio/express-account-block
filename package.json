@@ -1,6 +1,6 @@
 {
   "name": "express-account-pages",
-  "version": "0.3.0",
+  "version": "0.4.0",
   "description": "A simple user middleware of abstraction for Express on top of Passport",
   "main": "index.js",
   "scripts": {

@@ -4,12 +4,17 @@
 npm i express-account-pages
 ```
 
-## Todo
+## Features
 
+- [X] Drop-in login/signup page
+- [X] Drop-in account management page
 - [ ] Store last logged date for users
-- [ ] Logged middleware
-- [ ] Google login
+- [X] Logged middleware
+- [X] Use Bootstrap 
+- [ ] Google OAuth
+- [ ] Facebook OAuth
 - [ ] Better README
+- [ ] Upgrade plan direct on signup
 
 ## Usage
 
