@@ -10,6 +10,7 @@ const bcrypt 		= require('bcrypt-nodejs')
 const passport 		= require('passport')
 const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
+const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 
 let options = {}
 
@@ -27,11 +28,11 @@ const createUser = async (profile, done) => {
 	if (user) return done(null, false, { message: 'That email is already registered. Try to login.' })
 	
 	const timestamp = new Date().toISOString()
-	const accessToken = generateAccessToken(profile.emai)
+	const accessToken = generateAccessToken(profile.email)
 
 	let newUser = new options.mongoUser({
 		email: profile.email,
-		name: profile.name,
+		name: profile.provider === 'google' ? profile.displayName: profile.name,
 		pswd: profile.password ? bcrypt.hashSync(profile.password, bcrypt.genSaltSync(8), null) : null,
 		created: timestamp,
 		accessToken: accessToken
@@ -42,10 +43,18 @@ const createUser = async (profile, done) => {
 			id: profile.id,
 			username: profile.username
 		}
+	} else if (profile.provider === 'google') {
+		newUser.google = { id: profile.id }
 	}
 
 	if (options.sendMail) {
-		options.sendMail(`Welcome to ${options.siteName} 🚀!`, `Hi 👋!\n\nYour account has been sucessfully created, welcome to ${options.siteName} :)\n\nDon't worry, you won't be charged until your first app is live and running.\n\nI hope you'll enjoy using it.\n\nIf you have any question or suggestion, just send me an email (or reply to this one).\n\nGlad to have you on board!`, profile.email)
+		options.sendMail(`Welcome to ${options.siteName} 🚀!`, 
+						`Hi 👋!\n\n
+						Your account has been sucessfully created, welcome to ${options.siteName} :)\n\n
+						${options.signupMailExtra ? options.signupMailExtra + '\n\n' : ''}
+						I hope you'll enjoy using it.\n\n
+						If you have any question or suggestion, just reply to this email.\n\n
+						Glad to have you on board!`, newUser.email)
 	}
 
 	await newUser.save()
@@ -110,6 +119,23 @@ module.exports = (app, opts) => {
 		))
 	}
 
+	if (options.connectors && options.connectors.google) {
+		passport.use(new GoogleStrategy({
+				clientID: options.connectors.google.clientId,
+				clientSecret: options.connectors.google.clientSecret,
+				callbackURL: options.connectors.google.redirectUri
+			}, (accessToken, tokenSecret, profile, done) => {
+				profile.email = profile.emails[0].value
+
+				options.mongoUser.findOne({ "google.id": profile.id }, (err, user) => {
+					if (user) return done(null, user)
+
+					createUser(profile, done).catch(e => done(e))
+				})
+		  	}
+		))
+	}
+
 	passport.serializeUser((user, done) => {
 		done(null, user._id)
 	})
@@ -148,6 +174,11 @@ module.exports = (app, opts) => {
 		if (options.connectors.github) {
 			app.get('/auth/github', passport.authenticate('github'))
 			app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
+		}
+
+		if (options.connectors.google) {
+			app.get('/auth/google', passport.authenticate('google', { scope: [ 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email' ] }))
+			app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
 		}
 	}
 
