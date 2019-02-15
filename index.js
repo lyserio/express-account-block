@@ -219,8 +219,9 @@ module.exports = (app, opts) => {
 	app.get('/account/accessToken', asyncHandler(async (req, res, next) => {
 		if (!req.isAuthenticated()) return res.redirect('/login')
 
-		let user = options.mongoUser.findById(req.user.id).exec()
-
+		let user = await options.mongoUser.findById(req.user.id).exec()
+		if (!user) return next(403)
+			
 		user.accessToken = generateAccessToken(req.body.userEmail)
 
 		await user.save()

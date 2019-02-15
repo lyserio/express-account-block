@@ -2,7 +2,7 @@
 
 <% if (user.useAccessToken) { %>
 	<p>API access token: <b><%= user.accessToken %></b> - <a onclick="return confirm('Are you sure? It will make the current access token obsolete.')" href='/account/accessToken'>reset</a> (this will make the current obsolete) <br>
-	<small>You must keep your access token private. It will allow you to authenticate your API requests.</small>
+	<small>Keep your access token private. It allows you to authenticate API requests.</small>
 	</p>
 <% } %>
 
