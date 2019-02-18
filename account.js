@@ -10,11 +10,14 @@ $('#passwordForm').submit(function(event) {
 		dataType: "json",
 		success: function(data) {
 			alert('Password changed successfully!')
-			$('#passwordModal').modal('hide')
 		},
 		error: function(e) {
 			alert(e.responseJSON.error)
 			console.error(e.responseJSON)
+		},
+		complete: function(e) {
+			$('#passwordModal').modal('hide')
+			$('#passwordForm input').value("")
 		}
 	})
 })

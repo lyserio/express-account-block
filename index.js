@@ -71,10 +71,11 @@ passport.use('local-login', new LocalStrategy( {
 	
 	options.mongoUser.findOne({ email: email }, (err, user) => {
 
-		let userPassword = user.password || user.pswd || user.pswdHash 
-
 		if (err) return done(err)
 		if (!user) return done(null, false, { message: 'Incorrect email.' })
+		
+		let userPassword = user.password || user.pswd || user.pswdHash 
+
 		if (!userPassword) return done(null,false,{ message: "You haven't set a password. Try logging in via another method." })
 		if (!bcrypt.compareSync(password, userPassword)) return done(null, false, { message: 'Incorrect password.' })
 		
