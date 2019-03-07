@@ -49,12 +49,12 @@ const createUser = async (profile, done) => {
 
 	if (options.sendMail) {
 		options.sendMail(`Welcome to ${options.siteName} 🚀!`, 
-						`Hi 👋!\n\n
-						Your account has been sucessfully created, welcome to ${options.siteName} :)\n\n
-						${options.signupMailExtra ? options.signupMailExtra + '\n\n' : ''}
-						I hope you'll enjoy using it.\n\n
-						If you have any question or suggestion, just reply to this email.\n\n
-						Glad to have you on board!`, newUser.email)
+`Hi 👋!\n
+Your account has been successfully created, welcome to ${options.siteName} :)\n
+${options.signupMailExtra ? options.signupMailExtra + '\n' : ''}
+I hope you'll enjoy using it.\n
+If you have any question or suggestion, just reply to this email.\n
+Glad to have you on board!`, newUser.email)
 	}
 
 	await newUser.save()
