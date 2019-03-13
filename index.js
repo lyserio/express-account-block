@@ -73,11 +73,16 @@ passport.use('local-login', new LocalStrategy( {
 
 		if (err) return done(err)
 		if (!user) return done(null, false, { message: 'Incorrect email.' })
-		
-		let userPassword = user.password || user.pswd || user.pswdHash 
 
-		if (!userPassword) return done(null,false,{ message: "You haven't set a password. Try logging in via another method." })
-		if (!bcrypt.compareSync(password, userPassword)) return done(null, false, { message: 'Incorrect password.' })
+		// Switch legacy fields to new ones
+		let legacyPassword = user.password || user.pswdHash 
+		if (legacyPassword && !user.pswd) {
+			user.pswd = legacyPassword
+			user.save()
+		}
+
+		if (!user.pswd) return done(null,false,{ message: "You haven't set a password. Try logging in via another method." })
+		if (!bcrypt.compareSync(password, user.pswd)) return done(null, false, { message: 'Incorrect password.' })
 		
 		return done(null, user)
 	})
@@ -240,15 +245,16 @@ module.exports = (app, opts) => {
 		if (!req.isAuthenticated()) return next(403)
 
 		let oldPswd = req.body.old
+
 		let newPswd = req.body.new
 		let confirm = req.body.confirm
 
-		if (newPswd !== confirm) return next("The passwords don't match.")
+		if (newPswd !== confirm) return next("Passwords don't match.")
 
 		let user = await options.mongoUser.findById(req.user.id).exec()
 		if (!user) return next(403)
 
-		if (!bcrypt.compareSync(oldPswd, user.pswd)) return next("Invalid password.")
+		if (user.pswd && !bcrypt.compareSync(oldPswd, user.pswd)) return next("Invalid password.")
 
 		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
 
