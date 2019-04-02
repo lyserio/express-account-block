@@ -132,14 +132,17 @@
 					
 					<form class="form-signin" action="/<%= page %>" method="post">
 						<div class="form-label-group">
-							<input type="email" name='email' id="inputEmail" class="form-control" placeholder="Email address" required autofocus>
+						
+							<input type="email" name='email' id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="email">
 							<label for="inputEmail">Email address</label>
+						
 						</div>
 
 						<div class="form-label-group">
 							
-							<input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required>
+							<input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required autocomplete="<%= page === 'signup' ? 'new-password' : 'current-password' %>">
 							<label for="inputPassword">Password</label>
+
 						</div>
 
 						<!--<div class="custom-control custom-checkbox mb-3">

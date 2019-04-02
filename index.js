@@ -168,10 +168,6 @@ module.exports = (app, opts) => {
 	app.use(flash()) // error messages during login
 	app.use(cookieParser()) // read cookies
 
-	// get information from html forms and post payload
-	app.use(bodyParser.json()) 
-	app.use(bodyParser.urlencoded({ extended: true }))
-
 	app.use(passport.initialize())
 	app.use(passport.session()) // persistent login sessions
 

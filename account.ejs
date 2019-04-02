@@ -9,8 +9,6 @@
 <a href='/logout' class="btn btn-danger">Log out</a>
 
 <br>
-
-	
 <br>
 
 <% if (user.pswd) { %>
@@ -36,14 +34,14 @@
 					<div class="container-fluid">
 						<% if (user.pswd) { %>
 							<label>Current password</label><br>
-							<input class='form-control' type='password' name='old' placeholder="*********"/>
+							<input autocomplete="current-password" class='form-control' type='password' name='old' placeholder="*********"/>
 							<br>
 						<% } %>
 						<label>New password</label><br>
-						<input class='form-control' type='password' name='new' placeholder="*********"/>
+						<input autocomplete="new-password" class='form-control' type='password' name='new' placeholder="*********"/>
 						<br>
 						<label>Confirm</label><br>
-						<input class='form-control' type='password' name='confirm' placeholder="*********"/>
+						<input autocomplete="new-password" class='form-control' type='password' name='confirm' placeholder="*********"/>
 					</div>
 				</div>
 				<div class="modal-footer">
