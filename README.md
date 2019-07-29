@@ -6,16 +6,47 @@ npm i express-account-pages
 
 A simple to use module for Express that handles authentification (signup and login) and provide a basic account page you can place in your app.
 
-Based on JQuery and Bootstrap.
+Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 
 ## Features
 
+- [X] OAuth (Google and Github)
 - [X] Drop-in login/signup page
 - [X] Drop-in account management page
 - [ ] Store last logged date for users
 - [X] Logged middleware
-- [X] Use Bootstrap 
-- [X] OAuth (Google and Github)
+- [ ] Magic link option
+- [X] Use Bootstrap
+
+
+## Who uses it?
+
+<table>
+<tr>
+	<td align="center">
+		<a href="https://nucleus.sh"><img src="https://nucleus.sh/logo_color.svg" height="64" /></a>
+	</td>
+	<td align="center">
+		<a href="https://eliopay.com"><img src="https://eliopay.com/logo_black.svg" height="64" /></a>
+	</td>
+	<td align="center">
+		<a href="https://backery.io"><img src="https://backery.io/logo_color.svg" height="64" /></a>
+	</td>
+	<td align="center">
+		<a href="https://lttrfeed.com"><img src="https://lttrfeed.com/icon.svg" height="64" /></a>
+	</td>
+</tr>
+<tr>
+	<td align="center">Nucleus</td>
+	<td align="center">ElioPay</td>
+	<td align="center">Backery</td>
+	<td align="center">Lttrfeed</td>
+</tr>
+</table>
+
+_👋 Want to be listed there? [Contact me](mailto:vince@lyser.io)._
+
+
 
 ## Usage
 
@@ -74,14 +105,16 @@ In your express route:
 ```javascript
 app.get("/account", (req, res, next) => {
 
-	res.render("myaccountpage", { // Where account is your page structure
+	res.render("my_account_view", { // Where account is your page structure
 		accountTemplate: require.resolve("express-account-pages/account.ejs")
 	})
 })
 ```
 
 
+Make sure to have Bootstrap.js and jQuery included.
 Then, in your ejs:
+
 
 ```html
 <body>
