@@ -13,10 +13,11 @@ Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 - [X] OAuth (Google and Github)
 - [X] Drop-in login/signup page
 - [X] Drop-in account management page
-- [ ] Store last logged date for users
 - [X] Logged middleware
-- [ ] Magic link option
+- [X] Ability to disable sign ups
 - [X] Use Bootstrap
+- [ ] Magic link option
+- [ ] Store last logged date for users
 
 
 ## Who uses it?
@@ -78,6 +79,7 @@ require('express-account-pages')(app, {
 	useAccessToken: true, // Access token management
 	redirectLogin: '/account',
 	redirectSignup: '/account',
+	// disableSignup: true,
 	// signupMailExtra: 'You can now create your first app.',
 	mongoUser: db.User,
 	connectors: {

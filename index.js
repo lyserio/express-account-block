@@ -49,7 +49,7 @@ const createUser = async (profile, done) => {
 
 	if (options.sendMail) {
 		options.sendMail(`Welcome to ${options.siteName} 🚀!`, 
-`Hi 👋!\n
+`Hi 👋\n
 Your account has been successfully created, welcome to ${options.siteName} :)\n
 ${options.signupMailExtra ? options.signupMailExtra + '\n' : ''}
 I hope you'll enjoy using it.\n
@@ -186,7 +186,11 @@ module.exports = (app, opts) => {
 		}
 	}
 
-	app.get('/signup', (req, res) => {
+	app.get('/signup', (req, res, next) => {
+		if (options.disableSignup) {
+			return next('Sorry, signups are not available at the moment.')
+		} 
+
 		res.render(__dirname+'/login', { 
 			page: 'signup',
 			message: req.flash('error'),

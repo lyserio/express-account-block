@@ -1,7 +1,7 @@
 {
   "name": "express-account-pages",
-  "version": "1.0.0",
-  "description": "A simple user middleware of abstraction for Express on top of Passport",
+  "version": "1.1.0",
+  "description": "An abstraction middleware for Express for user management on top of Passport",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
@@ -10,11 +10,11 @@
   "license": "MIT",
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
-    "body-parser": "^1.18.3",
+    "body-parser": "^1.19.0",
     "connect-flash": "^0.1.1",
-    "connect-mongo": "^2.0.3",
+    "connect-mongo": "^3.0.0",
     "cookie-parser": "^1.4.4",
-    "express-session": "^1.15.6",
+    "express-session": "^1.16.2",
     "passport": "^0.4.0",
     "passport-github": "^1.1.0",
     "passport-google-oauth": "^1.0.0",
