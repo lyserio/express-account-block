@@ -1,8 +1,6 @@
-# express-account-pages
+# express-account-block
+[![npm version](https://badge.fury.io/js/express-admin-block.svg)](https://badge.fury.io/js/express-admin-block)
 
-```bash
-npm i express-account-pages
-```
 
 A simple to use module for Express that handles authentification (signup and login) and provide a basic account page you can place in your app.
 
@@ -13,6 +11,7 @@ Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 - [X] OAuth (Google and Github)
 - [X] Drop-in login/signup page
 - [X] Drop-in account management page
+- [ ] Auto redirecting after login/signup
 - [X] Logged middleware
 - [X] Ability to disable sign ups
 - [X] Use Bootstrap
@@ -48,8 +47,12 @@ Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 _👋 Want to be listed there? [Contact me](mailto:vince@lyser.io)._
 
 
-
 ## Usage
+
+```bash
+npm i express-account-block
+```
+Then in your express code
 
 ```javascript
 
@@ -70,7 +73,7 @@ app.use(express.json())
 app.use(express.urlencoded({ extended: true }))
 
 // For signup and login
-require('express-account-pages')(app, {
+require('express-account-block')(app, {
 	siteName: 'My Web App',
 	primaryColor: '#b90577',
 	// background: 'red',
@@ -108,7 +111,7 @@ In your express route:
 app.get("/account", (req, res, next) => {
 
 	res.render("my_account_view", { // Where account is your page structure
-		accountTemplate: require.resolve("express-account-pages/account.ejs")
+		accountTemplate: require.resolve("express-account-block/account.ejs")
 	})
 })
 ```
