@@ -2,10 +2,10 @@ const session       = require('express-session')
 const flash         = require('connect-flash')
 const MongoStore    = require('connect-mongo')(session)
 const cookieParser  = require('cookie-parser')
-const bodyParser  	= require('body-parser')
 
 const crypto 		= require('crypto')
 const bcrypt 		= require('bcrypt-nodejs')
+const jwt 			= require('jsonwebtoken')
 
 const passport 		= require('passport')
 const LocalStrategy = require('passport-local').Strategy
@@ -13,6 +13,7 @@ const GitHubStrategy = require('passport-github').Strategy
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 
 let options = {}
+let secret = "k1235fhjazc8678gg9"
 
 // Catching errors when using async functions
 const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
@@ -72,7 +73,7 @@ passport.use('local-login', new LocalStrategy( {
 	options.mongoUser.findOne({ email: email }, (err, user) => {
 
 		if (err) return done(err)
-		if (!user) return done(null, false, { message: 'Incorrect email.' })
+		if (!user) return done(null, false, { message: 'Incorrect email or password.' })
 
 		// Switch legacy fields to new ones
 		let legacyPassword = user.password || user.pswdHash 
@@ -81,8 +82,8 @@ passport.use('local-login', new LocalStrategy( {
 			user.save()
 		}
 
-		if (!user.pswd) return done(null,false,{ message: "You haven't set a password. Try logging in via another method." })
-		if (!bcrypt.compareSync(password, user.pswd)) return done(null, false, { message: 'Incorrect password.' })
+		if (!user.pswd) return done(null, false, { message: "You haven't set a password. Try logging in via another method." })
+		if (!bcrypt.compareSync(password, user.pswd)) return done(null, false, { message: 'Incorrect email or password.' })
 		
 		return done(null, user)
 	})
@@ -106,7 +107,7 @@ passport.use('local-signup', new LocalStrategy({
 
 module.exports = (app, opts) => {
 	if (opts) options = opts
-
+	if (options.secret) secret = options.secret
 
 	if (options.connectors && options.connectors.github) {
 		passport.use(new GitHubStrategy({
@@ -188,17 +189,14 @@ module.exports = (app, opts) => {
 
 	app.get('/signup', (req, res, next) => {
 		if (options.disableSignup) {
-			return next('Sorry, signups are not available at the moment.')
+			return next('Sorry, signups are disabled at the moment.')
 		} 
 
 		res.render(__dirname+'/login', { 
-			page: 'signup',
-			message: req.flash('error'),
-			logoUrl: options.logoUrl,
-			connectors: options.connectors,
-			siteName: options.siteName,
-			background: options.background,
-			primaryColor: options.primaryColor
+			page: 'Sign Up',
+			error: req.flash('error'),
+			info: req.flash('info'),
+			options: options
 		})
 	})
 
@@ -206,13 +204,26 @@ module.exports = (app, opts) => {
 		if (req.isAuthenticated()) return res.redirect(options.redirectLogin)
 
 		res.render(__dirname+'/login', {
-			page: 'login',
+			page: 'Log In',
+			error: req.flash('error'),
+			info: req.flash('info'),
+			options: options
+		})
+	})
+
+	app.get('/reset', (req, res) => {
+		const token = req.query.t
+
+		res.render(__dirname+'/reset', {
 			message: req.flash('error'),
-			logoUrl: options.logoUrl,
-			connectors: options.connectors,
-			siteName: options.siteName,
-			background: options.background,
-			primaryColor: options.primaryColor
+			options: options,
+			token: token
+		})
+	})
+
+	app.get('/forgot', (req, res) => {
+		res.render(__dirname+'/forgot', {
+			options: options
 		})
 	})
 
@@ -221,6 +232,36 @@ module.exports = (app, opts) => {
 			res.redirect('/login')
 		})
 	})
+
+	app.post('/forgot', asyncHandler(async (req, res, next) => {
+		const email = req.body.email
+
+		const user = await options.mongoUser.findOne({ email: email })
+		if (user) {
+			const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '1h' })
+			const link = `https://${options.siteUrl}/reset?t=${token}`
+
+			options.sendMail(`Reset your password`, `Hi,\n\nPlease follow this link to reset your password: ${link}`, user.email)
+		}
+
+		req.flash('info', 'Check your mailbox for a link to reset your password.')
+		res.redirect('/login')
+	}))
+
+	app.post('/reset', asyncHandler(async (req, res, next) => {
+		const token = req.body.token
+		const newPswd = req.body.password
+
+		const payload = jwt.verify(token, secret)
+		const user = await options.mongoUser.findById(payload.userId)
+		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
+		await user.save()
+
+		options.sendMail(`⚠️ ${options.siteName} - Password reset`, `Hello,\n\nWe inform you that you have your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
+		
+		req.flash('info', 'Your password was successfully changed.')
+		res.redirect('/login')
+	}))
 
 	app.get('/account/accessToken', asyncHandler(async (req, res, next) => {
 		if (!req.isAuthenticated()) return res.redirect('/login')
@@ -232,14 +273,10 @@ module.exports = (app, opts) => {
 
 		await user.save()
 
-		if (typeof options.sendMail === 'function') {
-			options.sendMail(`⚠️ ${options.siteName} - Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
-		}
+		options.sendMail(`⚠️ ${options.siteName} - Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
 	
 		res.redirect(options.redirectLogin)
-
 	}))
-
 
 	app.post('/account/password', asyncHandler(async (req, res, next) => {
 		if (!req.isAuthenticated()) return next(403)
@@ -260,17 +297,12 @@ module.exports = (app, opts) => {
 
 		await user.save()
 
-		if (typeof options.sendMail === 'function') {
-			options.sendMail(`⚠️ ${options.siteName} - Password updated`, `Hello,\n\nWe inform you that you have successfully updated your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
-		}
+		options.sendMail(`⚠️ ${options.siteName} - Password changed`, `Hello,\n\nWe inform you that you have successfully changed your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
 
 		res.send({})
-
 	}))
 
 	app.get('/account/account.js', (req, res, next) => {
 		res.sendFile(__dirname+'/account.js')
 	})
-
-
 }

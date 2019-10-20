@@ -1,7 +1,7 @@
 <head>
-	<title><%= page %> - <%= options.siteName %></title>
+	<title>Reset your password - <%= options.siteName %></title>
 	<meta http-equiv="Content-Type" content="text/html; charset=UTF-8">
-	<meta name="description" content="<%= page %> to <%= options.siteName %>.">
+	<meta name="description" content="Reset your <%= options.siteName %> password.">
 	<link rel="icon" type="image/png" href="/favicon.png" />
 	<meta name="viewport" content="width=device-width, initial-scale=1, user-scalable=no" />
 	<link rel="stylesheet" type="text/css" href="https://stackpath.bootstrapcdn.com/bootstrap/4.2.1/css/bootstrap.min.css">
@@ -11,7 +11,6 @@
 		--input-padding-x: 1rem;
 		--input-padding-y: .75rem;
 	}
-
 	body {
 		/*background: #007bff;
 		background: <%= options.background || 'linear-gradient(to right, #0062E6, #33AEFF);' %>;*/
@@ -20,6 +19,8 @@
 
 	.card-signin {
 		border: 0;
+		/*border-radius: 1rem;
+		box-shadow: 0 0.5rem 1rem 0 rgba(0, 0, 0, 0.1);*/
 	}
 
 	.card-signin .card-title {
@@ -45,7 +46,6 @@
 		opacity: 0.7;
 	}
 
-
 	.form-label-group {
 		position: relative;
 		margin-bottom: 1rem;
@@ -53,6 +53,7 @@
 
 	.form-label-group input {
 		height: auto;
+		/*border-radius: 2rem;*/
 	}
 
 	.form-label-group > input,
@@ -67,9 +68,11 @@
 		display: block;
 		width: 100%;
 		margin-bottom: 0;
+		/* Override default `<label>` margin */
 		line-height: 1.5;
 		color: #495057;
 		border: 1px solid transparent;
+		/*border-radius: .25rem;*/
 		transition: all .1s ease;
 	}
 
@@ -113,72 +116,32 @@
 					<div class="text-center">
 						<% if (options.logoUrl) { %>
 							<p><a href='/' class="text-center"><img width="100" src='<%= options.logoUrl %>'/></a></p>
-						<% }  else { %>
+						<% } else { %>
 							<h2><i class="fas fa-user mb-3"></i></h2>
 						<% } %>
 					</div>
 
-					<h5 class="card-title text-center"><%= page %></h5>
-
-					<% if (error && error.length) { %>
-						<div class="alert alert-danger" role="alert">
-							<%- error %>
-						</div>
-					<% } %>
-
-					<% if (info && info.length) { %>
-						<div class="alert alert-primary" role="alert">
-							<%- info %>
-						</div>
-					<% } %>
+					<h5 class="card-title text-center">Reset your password</h5>
 					
-					<form class="form-signin" action="/<%= page === 'Sign Up' ? 'signup' : 'login' %>" method="post">
-						<div class="form-label-group">
-						
-							<input type="email" name='email' id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="email">
-							<label for="inputEmail">Email address</label>
-						
-						</div>
+					<form class="form-signin" action="/reset" method="post">
+						<input type="hidden" name="token" value="<%= token %>">
 
 						<div class="form-label-group">
-							
-							<input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required autocomplete="<%= page === 'Sign Up' ? 'new-password' : 'current-password' %>">
-							<label for="inputPassword">Password</label>
-
+							<input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required autocomplete="new-password">
+							<label for="inputPassword">New Password</label>
 						</div>
 
-						<button class="btn btn-lg btn-primary btn-block text-uppercase" type="submit"><%= page %></button>
+						<!--<div class="form-label-group">
+							<input type="password" name='password' id="confirmPassword" class="form-control" placeholder="Password" required>
+							<label for="confirmPassword">Confirm Password</label>
+						</div>-->
 
-						<br>
+						<button class="btn btn-lg btn-warning btn-block text-uppercase" type="submit">Change password</button>
 
-						<% if (page === 'Sign Up') { %>
-							<p class="text-center"><small>Already have an account? <a href="/login">Log in</a></small></p>
-						<% } else { %>
-							<p class="text-center"><small>Don't have an account? <a href="/signup">Sign up now</a></small><br>
-							<small><a href="/forgot">Forgot your password?</a></small></p>
-						<% } %>
-						
-						<% if (options.connectors) { %>
-
-							<hr class="my-4">
-							
-							<% if (options.connectors.google) { %>
-								<a class="btn btn-lg btn-google btn-block text-uppercase" href='/auth/google'><i class="fab fa-google mr-2"></i><%= page %> with Google</a>
-							<% } %>
-							
-							<% if (options.connectors.facebook) { %>
-								<a class="btn btn-lg btn-facebook btn-block text-uppercase" href='/auth/facebook'><i class="fab fa-facebook-f mr-2"></i><%= page %> with Facebook</button>
-							<% } %>
-							
-							<% if (options.connectors.github) { %>
-								<a class="btn btn-lg btn-github btn-block text-uppercase" href='/auth/github'><i class="fab fa-github mr-2"></i><%= page %> with Github</a>
-							<% } %>
-						<% } %>
 					</form>
 				</div>
 			</div>
 		</div>
-
 	</div>
 	<script>
 		// Fix bug with prefill on chrome not updating labels 
