@@ -159,11 +159,15 @@ module.exports = (app, opts) => {
 		})
 	})
 
+	app.set('trust proxy', 1) // trust first proxy
+
 	app.use(session({ 
 		secret: 'hey super cat secret key', // session secret
 		resave: false, 
-		saveUninitialized: false,
-		store: new MongoStore({ mongooseConnection: options.mongoose.connection })
+		saveUninitialized: true,
+		store: new MongoStore({ 
+			mongooseConnection: options.mongoose.connection 
+		})
 	}))
 
 	app.use(flash()) // error messages during login
@@ -172,18 +176,56 @@ module.exports = (app, opts) => {
 	app.use(passport.initialize())
 	app.use(passport.session()) // persistent login sessions
 
-	app.post('/login', passport.authenticate('local-login', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash: true }) )
-	app.post('/signup', passport.authenticate('local-signup', { successRedirect : options.redirectSignup, failureRedirect : '/signup', failureFlash : true }))
+	app.post('/login', passport.authenticate('local-login', { 
+			failureRedirect: '/login', 
+			failureFlash: true 
+		}), (req, res, next) => {
+		
+		const redirect = req.session.redirectTo || options.redirectLogin
+		res.redirect(redirect)
+	})
+
+	app.post('/signup', passport.authenticate('local-signup', {
+			failureRedirect : '/signup',
+			failureFlash : true 
+		}), (req, res, next) => {
+		
+		const redirect = req.session.redirectTo || options.redirectSignup
+		res.redirect(redirect)
+	})
 
 	if (options.connectors) {
 		if (options.connectors.github) {
 			app.get('/auth/github', passport.authenticate('github'))
-			app.get('/auth/github/callback', passport.authenticate('github', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
+			app.get('/auth/github/callback', passport.authenticate('github', {
+					failureRedirect: '/login',
+					failureFlash : true
+				})
+			), (req, res, next) => {
+				const redirect = req.session.redirectTo || options.redirectLogin
+				res.redirect(redirect)
+			}
 		}
 
 		if (options.connectors.google) {
-			app.get('/auth/google', passport.authenticate('google', { scope: [ 'https://www.googleapis.com/auth/userinfo.profile', 'https://www.googleapis.com/auth/userinfo.email' ] }))
-			app.get('/auth/google/callback', passport.authenticate('google', { successRedirect: options.redirectLogin, failureRedirect: '/login', failureFlash : true  }))
+			app.get('/auth/google', 
+				passport.authenticate('google', {
+					scope: [ 
+						'https://www.googleapis.com/auth/userinfo.profile', 
+						'https://www.googleapis.com/auth/userinfo.email' 
+					]
+				})
+			)
+			
+			app.get('/auth/google/callback',
+				passport.authenticate('google', {
+					failureRedirect: '/login',
+					failureFlash : true
+				})
+			, (req, res, next) => {
+				const redirect = req.session.redirectTo || options.redirectLogin
+				res.redirect(redirect)
+			})
 		}
 	}
 

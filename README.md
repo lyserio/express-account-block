@@ -1,7 +1,6 @@
 # express-account-block
 [![npm version](https://badge.fury.io/js/express-admin-block.svg)](https://badge.fury.io/js/express-admin-block)
 
-
 A simple to use module for Express that handles authentification (signup and login), sessions and provide an account page you can place in your app.
 
 Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.

@@ -1,7 +1,7 @@
 {
   "name": "express-account-block",
-  "version": "1.2.0",
-  "description": "An user management middleware for Express on top of Passport",
+  "version": "1.2.1",
+  "description": "User accounts middleware for Express on top of Passport",
   "main": "index.js",
   "scripts": {
     "test": "echo \"Error: no test specified\" && exit 1"
