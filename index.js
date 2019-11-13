@@ -132,7 +132,8 @@ module.exports = (app, opts) => {
 		passport.use(new GoogleStrategy({
 				clientID: options.connectors.google.clientId,
 				clientSecret: options.connectors.google.clientSecret,
-				callbackURL: options.connectors.google.redirectUri
+				callbackURL: options.connectors.google.redirectUri,
+				userProfileURL: 'https://www.googleapis.com/oauth2/v3/userinfo'
 			}, (accessToken, tokenSecret, profile, done) => {
 				profile.email = profile.emails[0].value
 
