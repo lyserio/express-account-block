@@ -124,7 +124,7 @@ module.exports = (app, opts) => {
 
 					createUser(profile, done).catch(e => done(e))
 				})
-		  	}
+			}
 		))
 	}
 

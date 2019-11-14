@@ -105,6 +105,19 @@ require('express-account-block')(app, {
 	}
 })
 
+// Then you can use the provided middleware to enforce user to be logged
+// Redirects to login and back to page if not logged
+// Supports API token access
+// User object will be assigned to res.locals.user
+const logged = require('express-account-block/logged')(db.User)
+
+app.get('/dashboard', logged, (req, res, next) => {
+	const user = res.locals.user
+
+	...
+})
+
+
 ```
 
 ## Account page
