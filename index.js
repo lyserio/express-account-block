@@ -22,6 +22,12 @@ const generateAccessToken = (seed) => {
 	return (crypto.createHash('md5').update('s0mew31rderSAlt'+seed+'j+333'+new Date()).digest("hex")).substring(0,20)
 }
 
+/* clickjacking protection */
+const secureHeaders = (req, res, next) => {
+	res.set('X-Frame-Options', 'DENY')
+	next()
+}
+
 const createUser = async (profile, done) => {
 	
 	const user = await options.mongoUser.findOne({ 'email' :  profile.email }).exec()
@@ -103,7 +109,6 @@ passport.use('local-signup', new LocalStrategy({
 		}, done).catch(e => done(e))
 	}
 ))
-
 
 module.exports = (app, opts) => {
 	if (opts) options = opts
@@ -230,7 +235,9 @@ module.exports = (app, opts) => {
 		}
 	}
 
-	app.get('/signup', (req, res, next) => {
+	
+
+	app.get('/signup', secureHeaders, (req, res, next) => {
 		if (options.disableSignup) {
 			return next('Sorry, signups are disabled at the moment.')
 		} 
@@ -243,7 +250,7 @@ module.exports = (app, opts) => {
 		})
 	})
 
-	app.get('/login', (req, res) => {
+	app.get('/login', secureHeaders, (req, res) => {
 		if (req.isAuthenticated()) return res.redirect(options.redirectLogin)
 
 		res.render(__dirname+'/login', {
@@ -254,7 +261,7 @@ module.exports = (app, opts) => {
 		})
 	})
 
-	app.get('/reset', (req, res) => {
+	app.get('/reset', secureHeaders, (req, res) => {
 		const token = req.query.t
 
 		res.render(__dirname+'/reset', {
@@ -264,7 +271,7 @@ module.exports = (app, opts) => {
 		})
 	})
 
-	app.get('/forgot', (req, res) => {
+	app.get('/forgot', secureHeaders, (req, res) => {
 		res.render(__dirname+'/forgot', {
 			options: options
 		})

@@ -17,14 +17,19 @@ module.exports = (dbUser) => {
 		if (token) {
 			user = await dbUser.findOne({ accessToken: token }).exec()
 			
-			if (!user) return next('Invalid access token')
+			if (!user) return next('Invalid access token.')
 		} else  {
-			if (!req.user) {
+
+			if (req.user) {
+				user = req.user
+			} else if (req.accepts('html', 'json') === 'json') {
+				res.status(403)
+				return next('Unauthorized access.')
+			} else {
 				req.session.redirectTo = req.originalUrl
 				return res.redirect('/login')
 			}
 
-			user = req.user
 		}
 
 		res.locals.user = user
