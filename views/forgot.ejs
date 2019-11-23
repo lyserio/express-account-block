@@ -1,0 +1,14 @@
+<% include header.ejs %>
+
+<form action="/forgot" method="post">
+
+	<div class="form-label-group">
+		<input type="email" name='email' id="email" class="form-control" placeholder="Email" required autocomplete="email">
+		<label for="email">Your Account Email</label>
+	</div>
+
+	<button class="btn btn-lg btn-primary" type="submit">Send me a link</button>
+
+</form>
+
+<% include footer.ejs %>

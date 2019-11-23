@@ -1,0 +1,49 @@
+<% include header.ejs %>
+
+<form action="/<%= page === 'Sign Up' ? 'signup' : 'login' %>" method="post">
+	<div class="form-label-group">
+	
+		<input type="email" name='email' id="inputEmail" class="form-control" placeholder="Email address" required autofocus autocomplete="email">
+		<label for="inputEmail">Email address</label>
+	
+	</div>
+
+	<div class="form-label-group">
+		<input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required autocomplete="<%= page === 'Sign Up' ? 'new-password' : 'current-password' %>">
+		<label for="inputPassword">Password</label>
+	</div>
+
+	<button class="btn btn-lg btn-primary" type="submit"><%= page %></button>
+
+	<br>
+
+	<p class="text-center">
+		<small>
+			<% if (page === 'Sign Up') { %>
+				Already have an account? <a href="/login">Log in</a>
+			<% } else { %>
+				Don't have an account? <a href="/signup">Sign up now</a><br>
+				<a href="/forgot">Forgot your password?</a>
+			<% } %>
+		</small>
+	</p>
+
+	<% if (options.connectors) { %>
+
+		<hr class="my-4">
+		
+		<% if (options.connectors.google) { %>
+			<a class="btn btn-lg btn-google" href='/auth/google'><i class="fab fa-google mr-2"></i><%= page %> with Google</a>
+		<% } %>
+		
+		<% if (options.connectors.facebook) { %>
+			<a class="btn btn-lg btn-facebook" href='/auth/facebook'><i class="fab fa-facebook-f mr-2"></i><%= page %> with Facebook</button>
+		<% } %>
+		
+		<% if (options.connectors.github) { %>
+			<a class="btn btn-lg btn-github" href='/auth/github'><i class="fab fa-github mr-2"></i><%= page %> with Github</a>
+		<% } %>
+	<% } %>
+</form>
+
+<% include footer.ejs %>

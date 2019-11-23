@@ -1,0 +1,20 @@
+<% include header.ejs %>
+
+<form action="/reset" method="post">
+	<input type="hidden" name="token" value="<%= token %>">
+
+	<div class="form-label-group">
+		<input type="password" name='password' id="inputPassword" class="form-control" placeholder="Password" required autocomplete="new-password">
+		<label for="inputPassword">New Password</label>
+	</div>
+
+	<!--<div class="form-label-group">
+		<input type="password" name='password' id="confirmPassword" class="form-control" placeholder="Password" required>
+		<label for="confirmPassword">Confirm Password</label>
+	</div>-->
+
+	<button class="btn btn-lg btn-warning" type="submit">Change password</button>
+
+</form>
+
+<% include footer.ejs %>

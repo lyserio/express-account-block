@@ -12,21 +12,12 @@ const LocalStrategy = require('passport-local').Strategy
 const GitHubStrategy = require('passport-github').Strategy
 const GoogleStrategy = require('passport-google-oauth').OAuth2Strategy
 
-let options = {}
-let secret = "k1235fhjazc8678gg9"
-
-// Catching errors when using async functions
-const asyncHandler = fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next)
-
-const generateAccessToken = (seed) => {
-	return (crypto.createHash('md5').update('s0mew31rderSAlt'+seed+'j+333'+new Date()).digest("hex")).substring(0,20)
-}
-
-/* clickjacking protection */
-const secureHeaders = (req, res, next) => {
-	res.set('X-Frame-Options', 'DENY')
-	next()
-}
+const { 
+	asyncHandler, 
+	generateAccessToken, 
+	secureHeaders, 
+	mergeDeep
+} = require('./utils')
 
 const createUser = async (profile, done) => {
 	
@@ -110,11 +101,44 @@ passport.use('local-signup', new LocalStrategy({
 	}
 ))
 
-module.exports = (app, opts) => {
-	if (opts) options = opts
-	if (options.secret) secret = options.secret
+let options = {
+	siteName: "",
+	secret: "k1235fhjazc8678gg9",
+	siteUrl: "",
+	sendMail: (subject, content, recipient) => {
+		console.warn('Warning, no email sending function set.')
+		console.log("Mail to send: ", subject)
+	},
+	useAccessToken: true,
+	signupMailExtra: null,
+	redirectLogin: "/",
+	redirectSignup: "/",
+	connectors: {},
+	pages: {
+		logoUrl: null,
+		customHeadHtml: '',
+		signup: {
+			title: 'Sign Up',
+			subtitle: "Takes less than 30 seconds."
+		},
+		login: {
+			title: 'Log In',
+			subtitle: "Welcome back!"
+		},
+		forgot: {
+			title: "Reset your password"
+		},
+		reset: {
+			title: "Change your password"
+		}
+	}
+}
 
-	if (options.connectors && options.connectors.github) {
+module.exports = (app, opts) => {
+	
+	if (opts) options = mergeDeep(options, opts)
+
+	if (options.connectors.github) {
 		passport.use(new GitHubStrategy({
 				clientID: options.connectors.github.clientId,
 				clientSecret: options.connectors.github.clientSecret,
@@ -133,7 +157,7 @@ module.exports = (app, opts) => {
 		))
 	}
 
-	if (options.connectors && options.connectors.google) {
+	if (options.connectors.google) {
 		passport.use(new GoogleStrategy({
 				clientID: options.connectors.google.clientId,
 				clientSecret: options.connectors.google.clientSecret,
@@ -164,6 +188,9 @@ module.exports = (app, opts) => {
 			done(null, user)
 		})
 	})
+
+	// Less targetted attacks
+	app.disable('x-powered-by')
 
 	app.set('trust proxy', 1) // trust first proxy
 
@@ -200,49 +227,51 @@ module.exports = (app, opts) => {
 		res.redirect(redirect)
 	})
 
-	if (options.connectors) {
-		if (options.connectors.github) {
-			app.get('/auth/github', passport.authenticate('github'))
-			app.get('/auth/github/callback', passport.authenticate('github', {
-					failureRedirect: '/login',
-					failureFlash : true
-				})
-			), (req, res, next) => {
-				const redirect = req.session.redirectTo || options.redirectLogin
-				res.redirect(redirect)
-			}
-		}
-
-		if (options.connectors.google) {
-			app.get('/auth/google', 
-				passport.authenticate('google', {
-					scope: [ 
-						'https://www.googleapis.com/auth/userinfo.profile', 
-						'https://www.googleapis.com/auth/userinfo.email' 
-					]
-				})
-			)
-			
-			app.get('/auth/google/callback',
-				passport.authenticate('google', {
-					failureRedirect: '/login',
-					failureFlash : true
-				})
-			, (req, res, next) => {
-				const redirect = req.session.redirectTo || options.redirectLogin
-				res.redirect(redirect)
+	if (options.connectors.github) {
+		app.get('/auth/github', passport.authenticate('github'))
+		app.get('/auth/github/callback', 
+			passport.authenticate('github', {
+				failureRedirect: '/login',
+				failureFlash : true
 			})
-		}
+		, (req, res, next) => {
+			const redirect = req.session.redirectTo || options.redirectLogin
+			res.redirect(redirect)
+		})
 	}
 
-	
+	if (options.connectors.google) {
+		app.get('/auth/google', 
+			passport.authenticate('google', {
+				scope: [ 
+					'https://www.googleapis.com/auth/userinfo.profile', 
+					'https://www.googleapis.com/auth/userinfo.email' 
+				]
+			})
+		)
+		
+		app.get('/auth/google/callback',
+			passport.authenticate('google', {
+				failureRedirect: '/login',
+				failureFlash : true
+			})
+		, (req, res, next) => {
+			const redirect = req.session.redirectTo || options.redirectLogin
+			res.redirect(redirect)
+		})
+	}
+
 
 	app.get('/signup', secureHeaders, (req, res, next) => {
 		if (options.disableSignup) {
 			return next('Sorry, signups are disabled at the moment.')
 		} 
 
-		res.render(__dirname+'/login', { 
+		const pageOptions = options.pages.signup
+
+		res.render(__dirname+'/views/login', { 
+			title: pageOptions.title,
+			subtitle: pageOptions.subtitle,
 			page: 'Sign Up',
 			error: req.flash('error'),
 			info: req.flash('info'),
@@ -253,7 +282,11 @@ module.exports = (app, opts) => {
 	app.get('/login', secureHeaders, (req, res) => {
 		if (req.isAuthenticated()) return res.redirect(options.redirectLogin)
 
-		res.render(__dirname+'/login', {
+		const pageOptions = options.pages.login
+
+		res.render(__dirname+'/views/login', {
+			title: pageOptions.title,
+			subtitle: pageOptions.subtitle,
 			page: 'Log In',
 			error: req.flash('error'),
 			info: req.flash('info'),
@@ -264,7 +297,12 @@ module.exports = (app, opts) => {
 	app.get('/reset', secureHeaders, (req, res) => {
 		const token = req.query.t
 
-		res.render(__dirname+'/reset', {
+		const pageOptions = options.pages.reset
+
+		res.render(__dirname+'/views/reset', {
+			title: pageOptions.title,
+			subtitle: pageOptions.subtitle,
+			page: 'Reset password',
 			message: req.flash('error'),
 			options: options,
 			token: token
@@ -272,7 +310,13 @@ module.exports = (app, opts) => {
 	})
 
 	app.get('/forgot', secureHeaders, (req, res) => {
-		res.render(__dirname+'/forgot', {
+		
+		const pageOptions = options.pages.forgot
+
+		res.render(__dirname+'/views/forgot', {
+			title: pageOptions.title,
+			subtitle: pageOptions.subtitle,
+			page: 'Forgot password',
 			options: options
 		})
 	})
@@ -288,7 +332,7 @@ module.exports = (app, opts) => {
 
 		const user = await options.mongoUser.findOne({ email: email })
 		if (user) {
-			const token = jwt.sign({ userId: user._id }, secret, { expiresIn: '1h' })
+			const token = jwt.sign({ userId: user._id }, options.secret, { expiresIn: '1h' })
 			const link = `https://${options.siteUrl}/reset?t=${token}`
 
 			options.sendMail(`Reset your password`, `Hi,\n\nPlease follow this link to reset your password: ${link}`, user.email)
@@ -302,7 +346,7 @@ module.exports = (app, opts) => {
 		const token = req.body.token
 		const newPswd = req.body.password
 
-		const payload = jwt.verify(token, secret)
+		const payload = jwt.verify(token, options.secret)
 		const user = await options.mongoUser.findById(payload.userId)
 		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
 		await user.save()

@@ -12,7 +12,7 @@ Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 - [X] Drop-in login/signup page
 - [X] Drop-in account management page
 - [X] Forgot Password / reset link
-- [ ] Auto redirecting after login/signup
+- [X] Auto redirecting back after login/signup
 - [X] Logged middleware
 - [X] Ability to disable sign ups
 - [X] Use Bootstrap
@@ -34,6 +34,9 @@ Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 		<a href="https://backery.io"><img src="https://backery.io/logo_color.svg" height="64" /></a>
 	</td>
 	<td align="center">
+		<a href="https://anygoal.app"><img src="https://anygoal.app/logo.svg" height="64" /></a>
+	</td>
+	<td align="center">
 		<a href="https://lttrfeed.com"><img src="https://lttrfeed.com/icon.svg" height="64" /></a>
 	</td>
 	<td align="center">
@@ -44,6 +47,7 @@ Requires JQuery and Bootstrap 4 (JS + CSS) on the client side.
 	<td align="center">Nucleus</td>
 	<td align="center">ElioPay</td>
 	<td align="center">Backery</td>
+	<td align="center">Anygoal</td>
 	<td align="center">Lttrfeed</td>
 	<td align="center">Musli.io</td>
 </tr>
@@ -81,9 +85,6 @@ app.use(express.urlencoded({ extended: true }))
 require('express-account-block')(app, {
 	siteName: 'My Web App',
 	siteUrl: 'example.com',
-	primaryColor: '#b90577',
-	// background: 'red',
-	// logoUrl: '/favicon.png',
 	mongoose: mongoose,
 	useAccessToken: true, // Access token management
 	redirectLogin: '/account',
@@ -102,6 +103,17 @@ require('express-account-block')(app, {
 			clientSecret: 'xxxxxxxxx',
 			redirectUri: 'https://my.app/auth/google/callback'
 		}
+	},
+	pages: {
+		logoUrl: '/logo.png',
+		customHeadHtml: `
+			<link href="https://fonts.googleapis.com/css?family=Muli:400,800,900&display=swap" rel="stylesheet">
+			<link rel="stylesheet" type="text/css" href="/css/login.css">
+		`,
+		// login: {
+		// 	title: 'Good to have you back',
+		// 	subtitle: 'Sign in and keep rocking your companies goals.'
+		// },
 	}
 })
 
