@@ -1,6 +1,6 @@
 {
   "name": "express-account-block",
-  "version": "1.4.1",
+  "version": "1.4.2",
   "description": "User accounts middleware for Express on top of Passport",
   "main": "index.js",
   "scripts": {
