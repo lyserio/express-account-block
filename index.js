@@ -3,7 +3,6 @@ const flash         = require('connect-flash')
 const MongoStore    = require('connect-mongo')(session)
 const cookieParser  = require('cookie-parser')
 
-const crypto 		= require('crypto')
 const bcrypt 		= require('bcrypt-nodejs')
 const jwt 			= require('jsonwebtoken')
 

@@ -1,3 +1,5 @@
+const crypto = require('crypto')
+
 const isObject = (item) => (item && typeof item === 'object' && !Array.isArray(item))
 
 function mergeDeep(...objects) {
