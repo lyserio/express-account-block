@@ -1,6 +1,6 @@
 {
   "name": "express-account-block",
-  "version": "1.4.2",
+  "version": "1.4.3",
   "description": "User accounts middleware for Express on top of Passport",
   "main": "index.js",
   "scripts": {
@@ -11,7 +11,7 @@
   "dependencies": {
     "bcrypt-nodejs": "0.0.3",
     "connect-flash": "^0.1.1",
-    "connect-mongo": "^3.0.0",
+    "connect-mongo": "^3.2.0",
     "cookie-parser": "^1.4.4",
     "express-session": "^1.17.0",
     "jsonwebtoken": "^8.5.1",
