@@ -1,20 +1,39 @@
-<p>Logged as <b><%= user.email %></b> <%= user.github && user.github.id ? ' (connected to GitHub)' : '' %>  <%= user.google && user.google.id ? ' (connected to Google)' : '' %></p>
+<div class='my-4'>
+	<label>Logged in as</label>
+	<div class='input-group mb-3'>
+		<input class="form-control" readonly value='<%= user.email %>'>
+		<div class="input-group-append">
+			<a class='btn btn-danger' href='/logout'>Logout</a>
+		</div>
+	</div>
+	<p><small><%= user.github && user.github.id ? ' (connected to GitHub)' : '' %>  <%= user.google && user.google.id ? ' (connected to Google)' : '' %></small></p>
+</div>
 
 <% if (user.useAccessToken) { %>
-	<p>API access token: <b><%= user.accessToken %></b> - <a onclick="return confirm('Are you sure? It will make the current access token obsolete.')" href='/account/accessToken'>reset</a> (this will make the current obsolete) <br>
-	<small>Keep your access token private. It allows you to authenticate API requests.</small>
-	</p>
+<div class='my-4'>
+	<label>API Access Token</label>
+
+	<div class='input-group mb-3'>
+		<input class="form-control" readonly value='<%= user.accessToken %>'>
+		<div class="input-group-append">
+			<a class='btn btn-warning' onclick="return confirm('Are you sure? It will make the current access token obsolete.')" href='/account/accessToken'>Reset</a>
+		</div>
+	</div>
+
+	<small>
+		<ul>
+			<li>Keep your access token private. It allows you to authenticate API requests.
+			</li>
+			<li>Resetting it will make the current one obsolete.</li>
+		</ul>
+	</small>
+</div>
 <% } %>
 
-<a href='/logout' class="btn btn-danger">Log out</a>
-
-<br>
-<br>
-
 <% if (user.pswd) { %>
-	<p><a href='javascript:' data-toggle="modal" data-target="#passwordModal">Change password</a></p>
+	<p><a class='my-3 btn btn-secondary' href='javascript:' data-toggle="modal" data-target="#passwordModal">Change password</a></p>
 <% } else { %>
-	<p><a href='javascript:' data-toggle="modal" data-target="#passwordModal">Set a password</a></p>
+	<p><a class='my-3 btn btn-secondary' href='javascript:' data-toggle="modal" data-target="#passwordModal">Set a password</a></p>
 <% } %>
 
 <div class="modal fade" id="passwordModal" tabindex="-1" role="dialog" aria-hidden="true">

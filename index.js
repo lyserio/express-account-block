@@ -43,16 +43,13 @@ const createUser = async (profile, done) => {
 	} else if (profile.provider === 'google') {
 		newUser.google = { id: profile.id }
 	}
-
-	if (options.sendMail) {
-		options.sendMail(`Welcome to ${options.siteName} 🚀!`, 
-`Hi 👋\n
-Your account has been successfully created, welcome to ${options.siteName} :)\n
+	
+	options.sendMail(`Welcome to ${options.siteName} 🚀`, 
+`Hello,\n
+Your account has been successfully created. Welcome to ${options.siteName}.\n
 ${options.signupMailExtra ? options.signupMailExtra + '\n' : ''}
-I hope you'll enjoy using it.\n
 If you have any question or suggestion, just reply to this email.\n
-Glad to have you on board!`, newUser.email)
-	}
+Glad to have you on board!`, newUser.email, 'welcome')
 
 	await newUser.save()
 
@@ -104,7 +101,7 @@ let options = {
 	siteName: "",
 	secret: "k1235fhjazc8678gg9",
 	siteUrl: "",
-	sendMail: (subject, content, recipient) => {
+	sendMail: (subject, content, recipient, type) => {
 		console.warn('Warning, no email sending function set.')
 		console.log("Mail to send: ", subject)
 	},
@@ -334,7 +331,7 @@ module.exports = (app, opts) => {
 			const token = jwt.sign({ userId: user._id }, options.secret, { expiresIn: '1h' })
 			const link = `https://${options.siteUrl}/reset?t=${token}`
 
-			options.sendMail(`Reset your password`, `Hi,\n\nPlease follow this link to reset your password: ${link}`, user.email)
+			options.sendMail(`Reset your password`, `Hi,\n\nPlease follow this link to reset your password: ${link}`, user.email, 'password_reset_link')
 		}
 
 		req.flash('info', 'Check your mailbox for a link to reset your password.')
@@ -350,7 +347,7 @@ module.exports = (app, opts) => {
 		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
 		await user.save()
 
-		options.sendMail(`⚠️ ${options.siteName} - Password reset`, `Hello,\n\nWe inform you that you have your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
+		options.sendMail(`⚠️ Password reset`, `Hello,\n\nWe inform you that your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email, 'password_reset_done')
 		
 		req.flash('info', 'Your password was successfully changed.')
 		res.redirect('/login')
@@ -366,7 +363,7 @@ module.exports = (app, opts) => {
 
 		await user.save()
 
-		options.sendMail(`⚠️ ${options.siteName} - Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
+		options.sendMail(`⚠️ Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email, 'access_token_renewed')
 	
 		res.redirect(options.redirectLogin)
 	}))
@@ -390,7 +387,7 @@ module.exports = (app, opts) => {
 
 		await user.save()
 
-		options.sendMail(`⚠️ ${options.siteName} - Password changed`, `Hello,\n\nWe inform you that you have successfully changed your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
+		options.sendMail(`⚠️ Password changed`, `Hello,\n\nWe inform you that you have successfully changed your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email, 'password_changed')
 
 		res.send({})
 	}))

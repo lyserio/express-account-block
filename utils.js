@@ -30,7 +30,7 @@ module.exports = {
 	asyncHandler: fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next),
 
 	generateAccessToken: (seed) => {
-		return (crypto.createHash('md5').update('s0mew31rderSAlt'+seed+'j+333'+new Date()).digest("hex")).substring(0,20)
+		return (crypto.createHash('md5').update('s0mew31rderSAlt'+seed+'j+333'+new Date()).digest("hex")).substring(0,30)
 	},
 
 	// clickjacking protection
