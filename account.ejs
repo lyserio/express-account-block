@@ -1,33 +1,40 @@
 <div class='my-4'>
 	<label>Logged in as</label>
+	
 	<div class='input-group mb-3'>
 		<input class="form-control" readonly value='<%= user.email %>'>
 		<div class="input-group-append">
 			<a class='btn btn-danger' href='/logout'>Logout</a>
 		</div>
 	</div>
-	<p><small><%= user.github && user.github.id ? ' (connected to GitHub)' : '' %>  <%= user.google && user.google.id ? ' (connected to Google)' : '' %></small></p>
-</div>
-
-<% if (user.useAccessToken) { %>
-<div class='my-4'>
-	<label>API Access Token</label>
-
-	<div class='input-group mb-3'>
-		<input class="form-control" readonly value='<%= user.accessToken %>'>
-		<div class="input-group-append">
-			<a class='btn btn-warning' onclick="return confirm('Are you sure? It will make the current access token obsolete.')" href='/account/accessToken'>Reset</a>
-		</div>
-	</div>
 
 	<small>
 		<ul>
-			<li>Keep your access token private. It allows you to authenticate API requests.
-			</li>
-			<li>Resetting it will make the current one obsolete.</li>
+			<% if (user.google && user.google.id) { %><li>Connected to Google</li><% } %>
+			<% if (user.github && user.github.id) { %><li>Connected to Github</li><% } %>
 		</ul>
 	</small>
 </div>
+
+<% if (user.accessToken) { %>
+	<div class='my-4'>
+		<label>API Access Token</label>
+
+		<div class='input-group mb-3'>
+			<input class="form-control" readonly value='<%= user.accessToken %>'>
+			<div class="input-group-append">
+				<a class='btn btn-warning' onclick="return confirm('Are you sure? It will make the current access token obsolete.')" href='/account/accessToken'>Reset</a>
+			</div>
+		</div>
+
+		<small>
+			<ul>
+				<li>Keep your access token private. It allows you to authenticate API requests.
+				</li>
+				<li>Resetting it will make the current one obsolete.</li>
+			</ul>
+		</small>
+	</div>
 <% } %>
 
 <% if (user.pswd) { %>
