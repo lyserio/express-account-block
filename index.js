@@ -178,6 +178,7 @@ module.exports = (app, opts) => {
 	passport.deserializeUser((id, done) => {
 		options.mongoUser.findById(id, (err, user) => {
 			if (err) return done (err)
+			if (!user) return done("User not found")
 			
 			user.useAccessToken = options.useAccessToken // So it doesn't show for nothing
 			
