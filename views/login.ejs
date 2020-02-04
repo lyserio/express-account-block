@@ -1,4 +1,4 @@
-<% include header.ejs %>
+<%- include('header.ejs') %>
 
 <form action="/<%= page === 'Sign Up' ? 'signup' : 'login' %>" method="post">
 	<div class="form-label-group">
@@ -46,4 +46,4 @@
 	<% } %>
 </form>
 
-<% include footer.ejs %>
+<%- include('footer.ejs') %>

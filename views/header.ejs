@@ -12,9 +12,6 @@
 		}
 
 		.container {
-		}
-
-		.container {
 			display: flex;
 			justify-content: center;
 			align-items: center;
@@ -35,7 +32,7 @@
 		.title {
 			margin: 2rem 0 3rem 0;
 			font-weight: 300;
-			font-size: 2rem;
+			font-size: 2.2rem;
 		}
 
 		.subtitle {
@@ -49,13 +46,14 @@
 			padding: 0.75rem;
 			transition: all 0.2s;
 			text-transform: uppercase;
+			color: white;
 			width: 100%;
 			margin: 0 0 1.3rem 0;
 		}
 
 		.btn:hover {
-			opacity: 0.7;
-			color: inherit;
+			opacity: 0.8;
+			color: #fff;
 		}
 
 		.form-label-group {
@@ -103,17 +101,14 @@
 		}
 
 		.btn-google {
-			color: white;
 			background-color: #ea4335;
 		}
 
 		.btn-facebook {
-			color: white;
 			background-color: #3b5998;
 		}
 
 		.btn-github {
-			color: white;
 			background-color: #24292e;
 		}
 	</style>
@@ -126,7 +121,7 @@
 		<div class="text-center">
 			<% if (options.pages.logoUrl) { %>
 				<p><a href='/' class="text-center"><img width="90" src='<%= options.pages.logoUrl %>'/></a></p>
-			<% }  else { %>
+			<% } else { %>
 				<h2><i class="fas fa-user mb-3"></i></h2>
 			<% } %>
 			

@@ -261,7 +261,7 @@ module.exports = (app, opts) => {
 
 	app.get('/signup', secureHeaders, (req, res, next) => {
 		if (options.disableSignup) {
-			return next('Sorry, signups are disabled at the moment.')
+			return next('Sorry, signups are disabled for the time being.')
 		} 
 
 		const pageOptions = options.pages.signup
@@ -292,8 +292,8 @@ module.exports = (app, opts) => {
 	})
 
 	app.get('/reset', secureHeaders, (req, res) => {
+		
 		const token = req.query.t
-
 		const pageOptions = options.pages.reset
 
 		res.render(__dirname+'/views/reset', {

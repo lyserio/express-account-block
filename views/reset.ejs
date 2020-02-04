@@ -1,4 +1,4 @@
-<% include header.ejs %>
+<%- include('header.ejs') %>
 
 <form action="/reset" method="post">
 	<input type="hidden" name="token" value="<%= token %>">
@@ -17,4 +17,4 @@
 
 </form>
 
-<% include footer.ejs %>
+<%- include('footer.ejs') %>
