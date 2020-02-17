@@ -1,6 +1,6 @@
 {
   "name": "express-account-block",
-  "version": "1.5.3",
+  "version": "1.5.4",
   "description": "User accounts middleware for Express on top of Passport",
   "main": "index.js",
   "scripts": {
@@ -15,8 +15,8 @@
     "cookie-parser": "^1.4.4",
     "express-session": "^1.17.0",
     "jsonwebtoken": "^8.5.1",
-    "passport": "^0.4.0",
-    "passport-github": "^1.1.0",
+    "passport": "^0.4.1",
+    "passport-github": "rodikh/passport-github",
     "passport-google-oauth": "^2.0.0",
     "passport-local": "^1.0.0"
   }
