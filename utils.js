@@ -26,12 +26,11 @@ function mergeDeep(...objects) {
 }
 
 module.exports = {
-		// Catching errors when using async functions
+	// Catching errors when using async functions
 	asyncHandler: fn => (req, res, next) => Promise.resolve(fn(req, res, next)).catch(next),
 
-	generateAccessToken: (seed) => {
-		return (crypto.createHash('md5').update('s0mew31rderSAlt'+seed+'j+333'+new Date()).digest("hex")).substring(0,30)
-	},
+  // URL Safe random string generator
+	generateAccessToken: () => crypto.randomBytes(32).toString('base64').replace(/\+/g, '-').replace(/\//g, '_').replace(/\=/g, ''),
 
 	// clickjacking protection
 	secureHeaders: (req, res, next) => {

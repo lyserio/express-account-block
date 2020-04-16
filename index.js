@@ -25,7 +25,7 @@ const createUser = async (profile, done) => {
 	if (user) return done(null, false, { message: 'That email is already registered. Try to login.' })
 	
 	const timestamp = new Date().toISOString()
-	const accessToken = generateAccessToken(profile.email)
+	const accessToken = generateAccessToken()
 
 	let newUser = new options.mongoUser({
 		email: profile.email,
@@ -49,7 +49,7 @@ const createUser = async (profile, done) => {
 Your account has been successfully created. Welcome to ${options.siteName}.\n
 ${options.signupMailExtra ? options.signupMailExtra + '\n' : ''}
 If you have any question or suggestion, just reply to this email.\n
-Glad to have you on board!`, newUser.email, 'welcome')
+Glad to have you on board!`, newUser.email)
 
 	await newUser.save()
 
@@ -332,7 +332,7 @@ module.exports = (app, opts) => {
 			const token = jwt.sign({ userId: user._id }, options.secret, { expiresIn: '1h' })
 			const link = `https://${options.siteUrl}/reset?t=${token}`
 
-			options.sendMail(`Reset your password`, `Hi,\n\nPlease follow this link to reset your password: ${link}`, user.email, 'password_reset_link')
+			options.sendMail(`Reset your password`, `Hi,\n\nPlease follow this link to reset your password: ${link}`, user.email)
 		}
 
 		req.flash('info', 'Check your mailbox for a link to reset your password.')
@@ -344,11 +344,12 @@ module.exports = (app, opts) => {
 		const newPswd = req.body.password
 
 		const payload = jwt.verify(token, options.secret)
-		const user = await options.mongoUser.findById(payload.userId)
-		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
-		await user.save()
 
-		options.sendMail(`⚠️ Password reset`, `Hello,\n\nWe inform you that your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email, 'password_reset_done')
+		await options.mongoUser.findByIdAndUpdate(payload.userId, {
+			pswd: bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
+		})
+
+		options.sendMail(`⚠️ Password reset`, `Hello,\n\nWe inform you that your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, req.user.email)
 		
 		req.flash('info', 'Your password was successfully changed.')
 		res.redirect('/login')
@@ -357,41 +358,53 @@ module.exports = (app, opts) => {
 	app.get('/account/accessToken', asyncHandler(async (req, res, next) => {
 		if (!req.isAuthenticated()) return res.redirect('/login')
 
-		let user = await options.mongoUser.findById(req.user.id).exec()
-		if (!user) return next(403)
-			
-		user.accessToken = generateAccessToken(req.body.userEmail)
+		await options.mongoUser.findByIdAndUpdate(req.user.id, {
+			accessToken: generateAccessToken()
+		})
 
-		await user.save()
-
-		options.sendMail(`⚠️ Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email, 'access_token_renewed')
+		options.sendMail(`⚠️ Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, req.user.email)
 	
 		res.redirect(options.redirectLogin)
 	}))
 
-	app.post('/account/password', asyncHandler(async (req, res, next) => {
+
+	/** API for using without front part (like custom react) */
+	app.get('/api/account/', asyncHandler(async (req, res, next) => {
 		if (!req.isAuthenticated()) return next(403)
 
-		let oldPswd = req.body.old
+		res.send({ data: req.user })
+	}))
 
-		let newPswd = req.body.new
-		let confirm = req.body.confirm
+	app.post('/api/account/accesstoken', asyncHandler(async (req, res, next) => {
+		if (!req.isAuthenticated()) return next(403)
 
-		if (newPswd !== confirm) return next("Passwords don't match.")
+		await options.mongoUser.findByIdAndUpdate(req.user.id, {
+			accessToken: generateAccessToken()
+		})
 
-		let user = await options.mongoUser.findById(req.user.id).exec()
+		options.sendMail(`⚠️ Access token renewed`, `Hello,\n\nWe inform you that you have successfully renewed your API access token.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, req.user.email)
+	
+		res.send({})
+	}))
+	
+	app.post('/api/account/password', asyncHandler(async (req, res, next) => {
+		if (!req.isAuthenticated()) return next(403)
+		const { current, newPassword } = req.body
+
+		const user = await options.mongoUser.findById(req.user.id).exec()
 		if (!user) return next(403)
 
-		if (user.pswd && !bcrypt.compareSync(oldPswd, user.pswd)) return next("Invalid password.")
+		if (user.pswd && !bcrypt.compareSync(current, user.pswd)) return next("Invalid current password.")
 
-		user.pswd = bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
+		user.pswd = bcrypt.hashSync(newPassword, bcrypt.genSaltSync(8), null)
 
 		await user.save()
 
-		options.sendMail(`⚠️ Password changed`, `Hello,\n\nWe inform you that you have successfully changed your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email, 'password_changed')
+		options.sendMail(`⚠️ Password changed`, `Hello,\n\nWe inform you that you have successfully changed your ${options.siteName} password.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, req.user.email)
 
 		res.send({})
 	}))
+
 
 	app.get('/account/account.js', (req, res, next) => {
 		res.sendFile(__dirname+'/account.js')
