@@ -197,11 +197,14 @@ module.exports = (app, opts) => {
 		saveUninitialized: true,
 		store: new MongoStore({ 
 			mongooseConnection: options.mongoose.connection 
-		})
+		}),
+		cookie: {
+			domain: options.cookieDomain
+		}
 	}))
 
 	app.use(flash()) // error messages during login
-	app.use(cookieParser()) // read cookies
+	// app.use(cookieParser()) // read cookies (useless for new express-session)
 
 	app.use(passport.initialize())
 	app.use(passport.session()) // persistent login sessions
@@ -292,7 +295,6 @@ module.exports = (app, opts) => {
 	})
 
 	app.get('/reset', secureHeaders, (req, res) => {
-		
 		const token = req.query.t
 		const pageOptions = options.pages.reset
 
@@ -369,7 +371,7 @@ module.exports = (app, opts) => {
 
 
 	/** API for using without front part (like custom react) */
-	app.get('/api/account/', asyncHandler(async (req, res, next) => {
+	app.get('/api/account', asyncHandler(async (req, res, next) => {
 		if (!req.isAuthenticated()) return next(403)
 
 		res.send({ data: req.user })
