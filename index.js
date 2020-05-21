@@ -62,8 +62,10 @@ passport.use('local-login', new LocalStrategy( {
 	usernameField: 'email',
 	passwordField: 'password'
 }, (email, password, done) => {
+
+	const emailClean = email.toLowerCase().trim()
 	
-	options.mongoUser.findOne({ email: email }, (err, user) => {
+	options.mongoUser.findOne({ email: emailClean }, (err, user) => {
 
 		if (err) return done(err)
 		if (!user) return done(null, false, { message: 'Incorrect email or password.' })
@@ -89,8 +91,10 @@ passport.use('local-signup', new LocalStrategy({
 		passReqToCallback: true
 	}, (req, email, password, done) => {
 
+		const emailClean = email.toLowerCase().trim()
+
 		createUser({
-			email: email,
+			email: emailClean,
 			password: password,
 			name: req.body.name,
 		}, done).catch(e => done(e))
@@ -327,7 +331,7 @@ module.exports = (app, opts) => {
 	})
 
 	app.post('/forgot', asyncHandler(async (req, res, next) => {
-		const email = req.body.email
+		const email = req.body.email.toLowerCase().trim()
 
 		const user = await options.mongoUser.findOne({ email: email })
 		if (user) {
