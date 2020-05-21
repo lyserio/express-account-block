@@ -373,11 +373,12 @@ module.exports = (app, opts) => {
 		res.redirect(options.redirectLogin)
 	}))
 
-	app.use('/api', (req, res, next) => {
+	app.use('/api/account', (req, res, next) => {
 		if (!req.isAuthenticated()) {
 			res.status(403)
 			return next("Unauthorized.")
 		}
+		next()
 	})
 
 	/** API for using without front part (like custom react) */
