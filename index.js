@@ -351,11 +351,11 @@ module.exports = (app, opts) => {
 
 		const payload = jwt.verify(token, options.secret)
 
-		await options.mongoUser.findByIdAndUpdate(payload.userId, {
+		const user = await options.mongoUser.findByIdAndUpdate(payload.userId, {
 			pswd: bcrypt.hashSync(newPswd, bcrypt.genSaltSync(8), null)
 		})
 
-		options.sendMail(`⚠️ Password reset`, `Hello,\n\nWe inform you that your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, req.user.email)
+		options.sendMail(`⚠️ Password reset`, `Hello,\n\nWe inform you that your ${options.siteName} password was reset.\nIf you are not behind this operation, reply to this email immediately.\n\nHave a great day.\n\nThe ${options.siteName} team.`, user.email)
 		
 		req.flash('info', 'Your password was successfully changed.')
 		res.redirect('/login')
@@ -373,17 +373,19 @@ module.exports = (app, opts) => {
 		res.redirect(options.redirectLogin)
 	}))
 
+	app.use('/api', (req, res, next) => {
+		if (!req.isAuthenticated()) {
+			res.status(403)
+			return next("Unauthorized.")
+		}
+	})
 
 	/** API for using without front part (like custom react) */
 	app.get('/api/account', asyncHandler(async (req, res, next) => {
-		if (!req.isAuthenticated()) return next(403)
-
 		res.send({ data: req.user })
 	}))
 
 	app.post('/api/account/accesstoken', asyncHandler(async (req, res, next) => {
-		if (!req.isAuthenticated()) return next(403)
-
 		await options.mongoUser.findByIdAndUpdate(req.user.id, {
 			accessToken: generateAccessToken()
 		})
@@ -394,7 +396,6 @@ module.exports = (app, opts) => {
 	}))
 	
 	app.post('/api/account/password', asyncHandler(async (req, res, next) => {
-		if (!req.isAuthenticated()) return next(403)
 		const { current, newPassword } = req.body
 
 		const user = await options.mongoUser.findById(req.user.id).exec()
