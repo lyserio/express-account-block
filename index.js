@@ -35,7 +35,7 @@ const createUser = async (profile, done) => {
 		accessToken: accessToken
 	})
 
-	if (profile.provider === 'github') {
+	if (profile.provider === 'github') {
 		newUser.github = {
 			id: profile.id,
 			username: profile.username
@@ -143,10 +143,10 @@ module.exports = (app, opts) => {
 				clientID: options.connectors.github.clientId,
 				clientSecret: options.connectors.github.clientSecret,
 				callbackURL: options.connectors.github.redirectUri,
-				scope: 'user:email',
+				scope: ['user:email']
 			}, (accessToken, refreshToken, profile, done) => {
 
-				profile.email = profile.emails.find(e => e.primary).value
+				profile.email = profile.emails[0].value
 
 				options.mongoUser.findOne({ "github.id": profile.id }, (err, user) => {
 					if (user) return done(null, user)
@@ -232,10 +232,13 @@ module.exports = (app, opts) => {
 	})
 
 	if (options.connectors.github) {
-		app.get('/auth/github', passport.authenticate('github'))
+		app.get('/auth/github', 
+			passport.authenticate('github', {
+				scope: ['user:email']
+			})
+		)
 		app.get('/auth/github/callback', 
 			passport.authenticate('github', {
-				scope: ['user:email'],
 				failureRedirect: '/login',
 				failureFlash : true
 			})
