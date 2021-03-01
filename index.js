@@ -235,6 +235,7 @@ module.exports = (app, opts) => {
 		app.get('/auth/github', passport.authenticate('github'))
 		app.get('/auth/github/callback', 
 			passport.authenticate('github', {
+				scope: ['user:email'],
 				failureRedirect: '/login',
 				failureFlash : true
 			})
